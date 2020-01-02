@@ -16,61 +16,51 @@ module.exports = function(grunt) {
             height: 0,
         });
 
-        eachAsync(this.files, (file, index, next) => {
+        eachAsync(this.files, async (file, index, next) => {
             const dest = file.dest;
             const foreground = options.foreground;
             const background = options.background;
-            const mask = options.mask;
-            const shadow = options.shadow;
-            const crop = options.crop;
-            const width = file.width ? file.width : options.width;
-            const height = file.height ? file.height : options.height;
+
+            const mask = file.hasOwnProperty('mask') ? file.mask : options.mask;
+            const shadow = file.hasOwnProperty('shadow') ? file.shadow : options.shadow;
+            const crop = file.hasOwnProperty('crop') ? file.crop: options.crop;
+            const width = file.hasOwnProperty('width') ? file.width : options.width;
+            const height = file.hasOwnProperty('height') ? file.height : options.height;
 
             mkdirp.sync(path.dirname(dest));
 
-            sharp(background)
-                .composite([{input: foreground}])
-                .toBuffer()
-                .then((buffer) => {
-                    sharp(buffer)
-                        .composite([{input: mask, blend: 'dest-in'}])
-                        .toBuffer()
-                        .then((buffer) => {
-                            sharp(shadow)
-                                .composite([{input: buffer}])
-                                .toBuffer()
-                                .then((buffer) => {
-                                    sharp(buffer)
-                                        .extract(crop)
-                                        .resize(width, height)
-                                        .toFile(dest)
-                                        .then(() => {
-                                            grunt.log.writeln(
-                                                chalk.green('✔ ') + dest +
-                                                chalk.gray(' (' + width + ' x ' + height + ')')
-                                            );
+            try {
+                let buffer = await sharp(background)
+                    .composite([{input: foreground}])
+                    .toBuffer();
 
-                                            next();
-                                        })
-                                        .catch((error) => {
-                                            grunt.warn(error);
-                                            next(error);
-                                        });
-                                })
-                                .catch((error) => {
-                                    grunt.warn(error);
-                                    next(error);
-                                });
-                        })
-                        .catch((error) => {
-                            grunt.warn(error);
-                            next(error);
-                        });
-                })
-                .catch((error) => {
-                    grunt.warn(error);
-                    next(error);
-                });
+                if (mask) {
+                    buffer = await sharp(buffer)
+                        .composite([{input: mask, blend: 'dest-in'}])
+                        .toBuffer();
+
+                    if (shadow) {
+                        buffer = await sharp(shadow)
+                            .composite([{input: buffer}])
+                            .toBuffer();
+                    }
+                }
+
+                await sharp(buffer)
+                    .extract(crop)
+                    .resize(width, height)
+                    .toFile(dest);
+
+                grunt.log.writeln(
+                    chalk.green('✔ ') + dest +
+                    chalk.gray(' (' + width + ' x ' + height + ')')
+                );
+
+                next();
+            } catch (error) {
+                grunt.warn(error);
+                next(error);
+            }
         }, (error) => {
             if (error) {
                 grunt.warn(error);

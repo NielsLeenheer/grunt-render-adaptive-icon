@@ -26,27 +26,27 @@ grunt.initConfig({
     rendericon: {
         android_icons: {
             options: {
-                    foreground: 'template/foreground.png',
-                    background: 'template/background.png',
-                    mask: 'template/mask.png',
-                    shadow: 'template/shadow.png',
-                    crop: { width: 760, height: 760, left: 132, top: 132 }
+                    foreground: 'example/template/foreground.png',
+                    background: 'example/template/background.png',
+                    mask: 'example/template/mask.png',
+                    shadow: 'example/template/shadow.png',
+                    crop: { width: 768, height: 768, left: 128, top: 128 }
             },
             files: [
-                    { width: 36, height: 36, dest: 'output/ldpi-icon.png' },
-                    { width: 48, height: 48, dest: 'output/mdpi-icon.png' },
-                    { width: 72, height: 72, dest: 'output/hdpi-icon.png' },
-                    { width: 96, height: 96, dest: 'output/xhdpi-icon.png' },
-                    { width: 144, height: 144, dest: 'output/xxhdpi-icon.png' },
-                    { width: 192, height: 192, dest: 'output/xxxhdpi-icon.png' },
-                    { width: 512, height: 512, dest: 'output/google-play.png' }            
+                    { width: 36, height: 36, dest: 'example/output/ldpi-icon.png' },
+                    { width: 48, height: 48, dest: 'example/output/mdpi-icon.png' },
+                    { width: 72, height: 72, dest: 'example/output/hdpi-icon.png' },
+                    { width: 96, height: 96, dest: 'example/output/xhdpi-icon.png' },
+                    { width: 144, height: 144, dest: 'example/output/xxhdpi-icon.png' },
+                    { width: 192, height: 192, dest: 'example/output/xxxhdpi-icon.png' },
+                    { width: 512, height: 512, dest: 'example/output/google-play.png', mask: false, crop: { width: 720, height: 720, left: 152, top: 152 }  }            
             ]
         }
     }
 })
 ```
 
-This plugin can be used to automatically generate backwards compatible versions of an Android adaptive icon. Adaptive icons consist of a foreground image and a background image which will be composited on top of each other. Different variants of Android will then use different shapes to cut out the actual icon. One variant might use circular icons, another squares, squares with rounded corners or squircles. See for more infomation the Android developer website.
+This plugin can be used to automatically generate backwards compatible versions of an Android adaptive icon. Adaptive icons consist of a foreground image and a background image which will be composited on top of each other. Different variants of Android will then use different shapes to cut out the actual icon. One variant might use circular icons, another squares, squares with rounded corners or squircles. See for more infomation the [Android developer website](https://developer.android.com/guide/practices/ui_guidelines/icon_design_adaptive).
 
 For backwards capatibility it may be needed to also provide a regular old icon in various sizes. This plugin will automate that process.
 
@@ -54,6 +54,16 @@ For backwards capatibility it may be needed to also provide a regular old icon i
 
 In the first step a) the foreground will be composited on top of the background. In the next step b) the mask will be used to cut out the shape of the icon. In this case it will be a rounded rect. During step c) the resulting icon will be composited on top of the shadow. The next step is d) where the image will be cropped which results in our final icon, which will be scaled (e) to all the sizes specified. 
 
+### Uniform icons for the Play Store
+
+In addition to these backwards compatible versions of the adaptive icon, we can also use the orignal icon assets to create a new [Uniformed icon for the Play Store](https://developer.android.com/google-play/resources/icon-design-specifications). 
+
+Uniformed icons that are submitted to the Play Store must be 512 x 512 pixels large and must not have a predefined shape. Instead it must be a square without any shadows. The Play Store will apply it's own rounded mask and shadow to ensure consistency across all app icons in the store. 
+
+In the last example of the configuration above you'll notice we are generating a 512 x 512 pixel version of the icon with masking turned off. We also use a slightly tighter crop compared to the other icons to make sure our artwork is properly sized.
+
+
+### Configuration options
 
 #### options.foreground
 Type: `String`
@@ -100,4 +110,21 @@ The height of the output image.
 Type: `String`
 
 The path and name of the output file for that will be generated for this particular size.
+
+#### file.mask
+Type: `String` or `Boolean`
+
+Overwrite the mask option for an individual output file. Can be `false` to turn off masking for this file. This is especially useful to generate a new uniformed icon asset for the Play Store. 
+
+#### file.shadow
+Type: `String` or `Boolean`
+
+Overwrite the shadow option of an individual output file. 
+
+#### file.crop
+Type: `Object`
+
+Overwrite the crop option of an individual output file. 
+
+
 

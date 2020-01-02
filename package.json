@@ -1,7 +1,7 @@
 {
   "name": "grunt-render-adaptive-icon",
   "description": "Grunt plugin for rendering backwards compatible images from Android adaptive icons",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "homepage": "https://github.com/NielsLeenheer/grunt-render-adaptive-icon",
   "author": {
     "name": "Niels Leenheer",
@@ -25,10 +25,8 @@
   },
   "main": "Gruntfile.js",
   "scripts": {
-    "lint": "eslint --fix tasks/*.js"
-  },
-  "peerDependencies": {
-    "grunt": "~0.4.1"
+    "lint": "eslint --fix tasks/*.js",
+    "test": "grunt test"
   },
   "keywords": [
     "gruntplugin"
@@ -41,6 +39,7 @@
   },
   "devDependencies": {
     "eslint": "^4.11.0",
-    "eslint-config-google": "^0.9.1"
+    "eslint-config-google": "^0.9.1",
+    "grunt": "^1.0.4"
   }
 }
